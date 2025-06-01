@@ -10,19 +10,19 @@ logger.setLevel(logging.INFO)
 SNS_TOPIC_ARN = os.environ.get("SNS_TOPIC_ARN")
 
 def notify_cleanup_changes(log_entries):
-    """Sends summary notifications to SNS for cleanup and notify-only actions."""
+
     if not SNS_TOPIC_ARN:
         logger.warning("SNS_TOPIC_ARN not configured. Skipping notification.")
         return
 
-    # Group entries by action
+
     deleted_or_released = [log for log in log_entries if log.get("action") in {"deleted", "released"}]
     notify_only = [log for log in log_entries if log.get("action") == "notify"]
 
     from datetime import datetime
     timestamp = datetime.utcnow().isoformat()
 
-    # 🔸 Notification 1: Deletions or Releases
+
     if deleted_or_released:
         type_counts = Counter(log["resource_type"] for log in deleted_or_released)
         summary_lines = [f"{count} {rtype}(s)" for rtype, count in type_counts.items()]
@@ -40,7 +40,7 @@ def notify_cleanup_changes(log_entries):
         except (ClientError, BotoCoreError) as e:
             logger.error(f"Failed to send cleanup SNS notification: {str(e)}")
 
-    # 🔸 Notification 2: Notify-only entries (e.g., idle instances)
+
     if notify_only:
         lines = []
         for log in notify_only:

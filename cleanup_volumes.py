@@ -8,7 +8,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 def cleanup_unattached_volumes():
-    """Deletes unattached EBS volumes older than configured threshold."""
+    
     ec2 = boto3.client("ec2")
     deleted_volumes = []
 
@@ -22,7 +22,7 @@ def cleanup_unattached_volumes():
             create_time = volume.get("CreateTime")
 
             if state == "available":
-                # Calculate volume age in days
+               
                 age_days = (datetime.now(timezone.utc) - create_time).days
 
                 if age_days >= EBS_VOLUME_AGE_DAYS:

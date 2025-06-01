@@ -8,13 +8,13 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 def cleanup_idle_instances():
-    """Identifies EC2 instances with low CPU usage and logs for notification."""
+
     ec2 = boto3.client("ec2")
     cloudwatch = boto3.client("cloudwatch")
     idle_instances = []
 
     try:
-        # Step 1: Get all running EC2 instances
+
         reservations = ec2.describe_instances(Filters=[
             {"Name": "instance-state-name", "Values": ["running"]}
         ]).get("Reservations", [])
@@ -29,12 +29,12 @@ def cleanup_idle_instances():
                 logger.warning("Instance missing ID or launch time. Skipping.")
                 continue
 
-            # Step 2: Define time range (last 7 days)
+
             end_time = datetime.utcnow().replace(tzinfo=timezone.utc)
             start_time = end_time - timedelta(days=7)
 
             try:
-                # Step 3: Get average CPU utilization
+
                 cpu_response = cloudwatch.get_metric_statistics(
                     Namespace="AWS/EC2",
                     MetricName="CPUUtilization",
@@ -48,7 +48,7 @@ def cleanup_idle_instances():
                 cpu_datapoints = cpu_response.get("Datapoints", [])
                 avg_cpu = sum(dp["Average"] for dp in cpu_datapoints) / len(cpu_datapoints) if cpu_datapoints else 0
 
-                # Step 4: Check if CPU is below or equal to threshold
+
                 if avg_cpu <= IDLE_CPU_THRESHOLD:
                     logger.info(f"Instance {instance_id} is idle: CPU={avg_cpu:.2f}%")
 

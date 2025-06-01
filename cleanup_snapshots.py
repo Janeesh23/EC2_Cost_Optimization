@@ -8,7 +8,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 def cleanup_old_snapshots():
-    """Deletes EBS snapshots older than threshold and not attached to in-use volumes."""
+    
     ec2 = boto3.client("ec2")
     deleted_snapshots = []
 
@@ -29,7 +29,7 @@ def cleanup_old_snapshots():
 
             if age_days >= SNAPSHOT_RETENTION_DAYS:
                 if not volume_id:
-                    # No volume associated
+                   
                     try:
                         ec2.delete_snapshot(SnapshotId=snapshot_id)
                         logger.info(f"Deleted snapshot {snapshot_id}: no volume attached, age {age_days} days")
@@ -44,7 +44,7 @@ def cleanup_old_snapshots():
                         logger.error(f"Failed to delete snapshot {snapshot_id}: {str(e)}")
                     continue
 
-                # Volume exists – check status
+                
                 try:
                     volume_response = ec2.describe_volumes(VolumeIds=[volume_id])
                     volume = volume_response['Volumes'][0]

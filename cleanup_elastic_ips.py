@@ -7,12 +7,12 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 def cleanup_unattached_elastic_ips():
-    """Releases Elastic IPs that are not associated with any instance or network interface."""
+
     ec2 = boto3.client("ec2")
     released_ips = []
 
     try:
-        # Step 1: Get all Elastic IPs allocated to this account
+
         response = ec2.describe_addresses()
         addresses = response.get("Addresses", [])
 
@@ -22,7 +22,7 @@ def cleanup_unattached_elastic_ips():
             instance_id = address.get("InstanceId")
             network_interface_id = address.get("NetworkInterfaceId")
 
-            # Step 2: Check if the EIP is not attached to any resource
+
             if not instance_id and not network_interface_id:
                 try:
                     ec2.release_address(AllocationId=allocation_id)

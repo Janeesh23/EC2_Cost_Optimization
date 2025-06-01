@@ -8,12 +8,12 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 def cleanup_unused_load_balancers():
-    """Deletes ALBs/NLBs with no registered targets in any target group and older than threshold."""
+    
     elb = boto3.client("elbv2")
     deleted_lbs = []
 
     try:
-        # Step 1: Describe all load balancers
+        
         lb_response = elb.describe_load_balancers()
         load_balancers = lb_response.get("LoadBalancers", [])
 
@@ -29,13 +29,13 @@ def cleanup_unused_load_balancers():
             age_minutes = (datetime.now(timezone.utc) - created_time).total_seconds() / 60
 
             try:
-                # Step 2: Get target groups for this load balancer
+                
                 tg_response = elb.describe_target_groups(LoadBalancerArn=lb_arn)
                 target_groups = tg_response.get("TargetGroups", [])
 
                 has_registered_targets = False
 
-                # Step 3: Check each target group for targets
+                
                 for tg in target_groups:
                     tg_arn = tg.get("TargetGroupArn")
                     if not tg_arn:
@@ -48,9 +48,9 @@ def cleanup_unused_load_balancers():
                         has_registered_targets = True
                         break
 
-                # Step 4: If no targets and older than threshold, proceed to delete
+                
                 if not has_registered_targets and age_minutes >= LB_MIN_AGE_MINUTES:
-                    # Step 4.1: Delete all listeners first
+
                     try:
                         listeners_response = elb.describe_listeners(LoadBalancerArn=lb_arn)
                         listeners = listeners_response.get("Listeners", [])
@@ -61,7 +61,7 @@ def cleanup_unused_load_balancers():
                     except Exception as listener_error:
                         logger.error(f"Failed to delete listeners for {lb_name}: {str(listener_error)}")
 
-                    # Step 4.2: Delete the load balancer
+
                     elb.delete_load_balancer(LoadBalancerArn=lb_arn)
                     logger.info(f"Deleted load balancer {lb_name} (ARN: {lb_arn})")
 

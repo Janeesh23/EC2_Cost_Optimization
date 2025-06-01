@@ -9,7 +9,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 def upload_log_to_s3(log_entries):
-    """Uploads structured JSON logs to the specified S3 bucket."""
+
     s3 = boto3.client("s3")
     timestamp = datetime.utcnow().strftime("%Y-%m-%d-%H%M%S")
     filename = f"{timestamp}-summary.json"
